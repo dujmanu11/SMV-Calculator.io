@@ -1,0 +1,417 @@
+﻿@{
+    ViewBag.Title = "SMV Calculator";
+}
+<h2>@ViewBag.Title.</h2>
+@*<h3>@ViewBag.Message</h3>*@
+
+<form onsubmit="return false" id="SMV_form">
+
+    <div class="form-group">
+        <label for="faceInput">Face rating:</label>
+        <input type="number" class="form-control" id="faceInput" min="1" max="8" step="0.01" value="5" required>
+    </div>
+
+    <div class="form-group">
+        <label for="heightInput">Height:</label>
+        <input type="range" class="form-control" id="heightInput" min="158" max="198" value="180" required oninput="this.nextElementSibling.value = this.value + ' cm'">
+        <output>180 cm</output>
+    </div>
+
+    <div class="form-group">
+        <label for="weightInput">Weight(lbs):</label>
+        <input type="number" class="form-control" id="weightInput" weightInput" min="70" max="400" step="0.1" onchange="weightConverter(this.value)" value="150" required>
+        <p id="kgInput">68.04 Kg</p>
+        <p>BMI: </p>
+    </div>
+
+    <div class="form-group">
+        <label for="bfpInput">Body fat percentage:</label>
+        <label class="radio-inline"><input type="radio" id="bfpInput1" name="bfpInput" checked required>7%</label>
+        <label class="radio-inline"><input type="radio" id="bfpInput2" name="bfpInput" required>10.1%</label>
+        <label class="radio-inline"><input type="radio" id="bfpInput3" name="bfpInput" required>14.9%</label>
+        <label class="radio-inline"><input type="radio" id="bfpInput4" name="bfpInput" required>20.7%</label>
+        <label class="radio-inline"><input type="radio" id="bfpInput5" name="bfpInput" required>25.3%</label>
+        <label class="radio-inline"><input type="radio" id="bfpInput6" name="bfpInput" required>32.6%</label>
+        <label class="radio-inline"><input type="radio" id="bfpInput7" name="bfpInput" required>36.7%</label>
+        <label class="radio-inline"><input type="radio" id="bfpInput8" name="bfpInput" required>36.7%+</label>
+    </div>
+
+    <div class="form-group">
+        <label for="netWorthInput">Net worth (K):</label>
+        <input type="number" class="form-control" id="netWorthInput" min="-200" max="10000" value="0" required>
+        <label for="incomeInput">Yearly income (K):</label>
+        <input type="number" class="form-control" id="incomeInput" min="0" max="1000" value="50" required>
+    </div>
+
+    <div class="form-group">
+        <label for="ppInput">P-size:</label>
+        <input type="range" class="form-control" id="ppInput" min="9" max="30" value="13" step="0.1" oninput="this.nextElementSibling.value = this.value + ' cm'" required>
+        <output>13 cm</output>
+        <p id="imperialHeight"></p>
+    </div>
+
+    <div class="form-group">
+        <label for="iqInput">IQ rating:</label>
+        <input type="range" class="form-control" id="iqInput" min="65" max="135" value="100" oninput="this.nextElementSibling.value = this.value + ' points'" required>
+        <output>100 ponts</output>
+    </div>
+
+    <div class="form-group">
+        <label for="raceInput">Race:</label>
+        <label class="radio-inline"><input type="radio" id="raceInput1" name="raceInput" checked required>White</label>
+        <label class="radio-inline"><input type="radio" id="raceInput2" name="raceInput" required>Black/Latino</label>
+        <label class="radio-inline"><input type="radio" id="raceInput3" name="raceInput" required>Indian/Asian</label>
+        <label class="radio-inline"><input type="radio" id="raceInput4" name="raceInput" required>Other</label>
+    </div>
+
+    <div class="form-group">
+        <label for="localInput">Select local modifier:</label>
+        <label class="radio-inline"><input type="radio" id="localInput1" name="localInput" checked required>The West (not in college)</label>
+        <label class="radio-inline"><input type="radio" id="localInput2" name="localInput" required>The West (in college)</label>
+        <label class="radio-inline"><input type="radio" id="localInput3" name="localInput" required>South America</label>
+        <label class="radio-inline"><input type="radio" id="localInput4" name="localInput" required>South-Est Asia</label>
+        <label class="radio-inline"><input type="radio" id="localInput5" name="localInput" required>Other</label>
+    </div>
+
+    <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="sendData">
+        <label class="form-check-label" for="sendData">Send anonymous data</label>
+    </div>
+
+    <button type="submit"
+            class="btn btn-primary g-recaptcha"
+            onclick="calculate()"
+            data-sitekey="reCAPTCHA_site_key"
+            data-callback='onSubmit'
+            data-action='submit'>
+        Submit
+    </button>
+    @*<button class="btn btn-primary" onclick="calculate()">Submit2</button>*@
+
+</form>
+<h2 id="resultField">Result: </h2>
+
+<script src="https://www.google.com/recaptcha/api.js"></script>
+<script>
+    function onSubmit(token) {
+        document.getElementById("SMV_form").submit();
+    }
+</script>
+<script type="text/javascript">
+
+    //$("#SMV_form").submit(function (e) {
+    //    e.preventDefault();
+    //});
+
+    function lengthConverter(valNum) {
+        document.getElementById("imperialHeight").innerHTML = valNum / 0.0022046;
+    }
+
+    function weightConverter(valNum) {
+        document.getElementById("kgInput").innerHTML = Math.round(valNum / 0.0022046 / 10) / 100 + ' Kg';
+    }
+
+    function InsertToGoogleSheets(
+        face,
+        height,
+        weight,
+        netWorth,
+        income,
+        pp,
+        iq,
+        bmi,
+        faceRating,
+        heightRating,
+        bodyRating,
+        incomeRating,
+        nwRating,
+        financeRating,
+        ppRating,
+        iqRating,
+        local,
+        race,
+        SMV
+    )
+    {
+        try {
+            $.ajax({
+                url: '@Url.Action("InsertToGoogleSheets", "Home")',
+                type: "POST",
+                //contentType: false,
+                //processData: false,
+                data: {
+                    face: face,
+                    height: height,
+                    weight: weight,
+                    netWorth: netWorth,
+                    income: income,
+                    pp: pp,
+                    iq: iq,
+                    bmi: bmi,
+                    faceRating: faceRating,
+                    heightRating: heightRating,
+                    bodyRating: bodyRating,
+                    incomeRating: incomeRating,
+                    nwRating: nwRating,
+                    financeRating: financeRating,
+                    ppRating: ppRating,
+                    iqRating: iqRating,
+                    local: local,
+                    race: race,
+                    SMV: SMV
+                },
+                success: function (result) {
+                    //$('#ResultMessageModalBody').text(result);
+                   // $('#ResultMessage').modal('show', { backdrop: 'static' });
+                    //alert('a mers');
+                },
+                //error: function (err) {
+                //    //$('#ResultMessageModalBody').text('Error during update and conversion. ERR: ' + err.statusText);
+                //    //$('#ResultMessage').modal('show', { backdrop: 'static' });
+                //    alert(err.);
+                //},
+                error: function (jqxhr, status, exception) {
+                    //alert('Exception:', exception);
+                },
+                beforeSend: function () {
+                    //$('.loader').show();
+                },
+                complete: function () {
+                    //$('.loader').hide();
+                    //alert('bruh');
+                }
+
+            });
+            //alert('done');
+        }
+        catch (err){
+            alert(err.message);
+        }
+    }
+
+    function calculate() {
+        let face = document.getElementById('faceInput').value;
+        let height = document.getElementById('heightInput').value;
+        let weight = document.getElementById('weightInput').value;
+        //let bfp = document.getElementById('bfpInput').value;
+        let netWorth = document.getElementById('netWorthInput').value;
+        let income = document.getElementById('incomeInput').value;
+        let pp = document.getElementById('ppInput').value;
+        let iq = document.getElementById('iqInput').value;
+
+        let race = "";
+        let localModifier = "";
+        let bmi = weight / (height / 100 * height / 100);
+
+        let faceRating = face;
+        let heightRating = 0;
+        let bodyRating = 0;
+        let incomeRating = 0;
+        let nwRating = 0;
+        let financeRating = 0;
+        let ppRating = 0;
+        let iqRating = 0;
+
+
+        if (height >= 198)
+            heightRating = 8;
+        else if (height >= 193)
+            heightRating = 7.5;
+        else if (height >= 191)
+            heightRating = 7;
+        else if (height >= 188)
+            heightRating = 6.5;
+        else if (height >= 186)
+            heightRating = 6;
+        else if (height >= 183)
+            heightRating = 5.5;
+        else if (height >= 180)
+            heightRating = 5;
+        else if (height >= 178)
+            heightRating = 4.5;
+        else if (height >= 175)
+            heightRating = 4;
+        else if (height >= 173)
+            heightRating = 3.5;
+        else if (height >= 170)
+            heightRating = 3;
+        else if (height >= 165)
+            heightRating = 2.5;
+        else if (height >= 163)
+            heightRating = 2;
+        else if (height >= 160)
+            heightRating = 1.5;
+        else heightRating = 1;
+
+        if (document.getElementById("bfpInput1").checked == true)
+            bodyRating = 8;
+        else if (document.getElementById("bfpInput2").checked == true)
+            bodyRating = 7;
+        else if (document.getElementById("bfpInput3").checked == true)
+            bodyRating = 6;
+        else if (document.getElementById("bfpInput4").checked == true)
+            bodyRating = 5;
+        else if (document.getElementById("bfpInput5").checked == true)
+            bodyRating = 4;
+        else if (document.getElementById("bfpInput6").checked == true)
+            bodyRating = 3;
+        else if (document.getElementById("bfpInput7").checked == true)
+            bodyRating = 2;
+        else bodyRating = 1;
+
+        if (bodyRating >= 5) {
+            if (bmi >= 21 && bmi <= 22)
+                bodyRating -= 0.5;
+            else if (bmi > 20 && bmi < 21)
+                bodyRating -= 0.75;
+            else if (bmi >= 19 && bmi <= 20)
+                bodyRating -= 1;
+            else if (bmi > 18 && bmi < 19)
+                bodyRating -= 1.5;
+            else if (bmi >= 17 && bmi <= 28)
+                bodyRating -= 2;
+            else if (bmi >= 17)
+                bodyRating -= 3;
+        }
+
+        if (income >= 200)
+            incomeRating = 8;
+        else if (income >= 85)
+            incomeRating = 7;
+        else if (income >= 65)
+            incomeRating = 6;
+        else if (income >= 38)
+            incomeRating = 5;
+        else if (income >= 21)
+            incomeRating = 4;
+        else if (income >= 11)
+            incomeRating = 3;
+        else if (income >= 1)
+            incomeRating = 2;
+        else incomeRating = 1;
+
+        if (netWorth >= 600)
+            nwRating = 8;
+        else if (netWorth >= 130)
+            nwRating = 7;
+        else if (netWorth >= 47)
+            nwRating = 6;
+        else if (netWorth >= 8)
+            nwRating = 5;
+        else if (netWorth >= -2)
+            nwRating = 4;
+        else if (netWorth >= -25)
+            nwRating = 3;
+        else if (netWorth >= -100)
+            nwRating = 2;
+        else nwRating = 1;
+
+        if (nwRating > incomeRating)
+            financeRating = nwRating;
+        else financeRating = incomeRating;
+
+        if (pp >= 18)
+            ppRating = 8;
+        else if (pp >= 15)
+            ppRating = 7;
+        else if (pp >= 14)
+            ppRating = 6;
+        else if (pp >= 13)
+            ppRating = 5;
+        else if (pp >= 12)
+            ppRating = 4;
+        else if (pp >= 11)
+            ppRating = 3;
+        else if (pp >= 9)
+            ppRating = 2;
+        else ppRating = 1;
+
+        if (iq >= 135)
+            iqRating = 8;
+        else if (iq >= 120)
+            iqRating = 7;
+        else if (iq >= 110)
+            iqRating = 6;
+        else if (iq >= 100)
+            iqRating = 5;
+        else if (iq >= 90)
+            iqRating = 4;
+        else if (iq >= 80)
+            iqRating = 3;
+        else if (iq >= 65)
+            iqRating = 2;
+        else iqRating = 1;
+
+
+        let score = faceRating ** 5 * heightRating ** 3 * bodyRating ** 2 * financeRating ** 2 * ppRating ** 2 * iqRating;
+        let SMV = score ** (1 / 15);
+        //alert(SMV);
+
+
+        if (document.getElementById("raceInput1").checked == true) {
+            SMV += 0.5;
+            race = "White";
+        }
+        else if (document.getElementById("raceInput2").checked == true) {
+            race = "Black/Latino";
+        }
+        else if (document.getElementById("raceInput3").checked == true) {
+            SMV -= 1;
+            race = "Indian/Asian";
+        }
+        else if (document.getElementById("raceInput4").checked == true)
+            race = "Other";
+
+
+        if (document.getElementById("localInput1").checked == true) {
+            SMV -= 1;
+            localModifier = "The West (not in college)";
+        }
+        else if (document.getElementById("localInput2").checked == true) {
+            SMV += 0.5;
+            localModifier = "The West (in college)";
+        }
+        else if (document.getElementById("localInput3").checked == true) {
+            SMV += 0.5;
+            localModifier = "South America";
+        }
+        else if (document.getElementById("localInput4").checked == true) {
+            SMV += 1;
+            localModifier = "South-Est Asia";
+        }
+        else if (document.getElementById("localInput5").checked == true) {
+            localModifier = "Other";
+        }
+
+
+
+        if ($('#sendData').is(':checked')) {
+            InsertToGoogleSheets(
+                face,
+                height,
+                weight,
+                netWorth,
+                income,
+                pp,
+                iq,
+                bmi,
+                faceRating,
+                heightRating,
+                bodyRating,
+                incomeRating,
+                nwRating,
+                financeRating,
+                ppRating,
+                iqRating,
+                localModifier,
+                race,
+                SMV
+            );
+        }
+        //alert(SMV.toFixed(2));
+
+        $("#resultField").text("Result: " + SMV.toFixed(2));
+    }
+
+
+</script>
